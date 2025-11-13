@@ -4,8 +4,21 @@
     box-sizing: border-box;
 }
 
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --accent-color: #e74c3c;
+    --text-color: #333;
+    --light-bg: #f8f9fa;
+    --white: #ffffff;
+    --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
 body {
     font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
@@ -83,7 +96,8 @@ body {
     border: 2px solid #e9ecef;
     border-radius: 8px;
     font-size: 16px;
-    transition: all 0.3s ease;
+    transition: var(--transition);
+    font-family: inherit;
 }
 
 .form-group input:focus,
@@ -109,7 +123,8 @@ body {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition);
+    font-family: inherit;
 }
 
 .btn-primary:hover {
@@ -174,6 +189,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
+    font-family: inherit;
 }
 
 .filter-btn.active,
@@ -195,7 +211,7 @@ body {
     border-left: 5px solid #3498db;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
     transition: all 0.3s ease;
 }
@@ -281,6 +297,7 @@ body {
     cursor: pointer;
     font-weight: 500;
     transition: all 0.3s ease;
+    font-family: inherit;
 }
 
 .btn-complete {
@@ -299,6 +316,13 @@ body {
 
 .btn-delete:hover {
     background: #c0392b;
+}
+
+.no-tasks {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+    font-style: italic;
 }
 
 /* Loading Spinner */
@@ -352,5 +376,23 @@ body {
     
     .main-content {
         padding: 20px;
+    }
+    
+    body {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 1.8rem;
+    }
+    
+    .task-form {
+        gap: 15px;
+    }
+    
+    .filter-controls {
+        flex-direction: column;
     }
 }
