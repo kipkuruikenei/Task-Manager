@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/public/$1"
+      "destination": "/api/$1"
     }
   ]
 }
