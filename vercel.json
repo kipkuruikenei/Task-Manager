@@ -1,13 +1,34 @@
+{
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.7.4"
+    }
+  },
+  "rewrites": [
     {
-      "functions": {
-        "api/**/*.php": {
-          "runtime": "vercel-php@0.7.4"
-        }
-      },
-      "routes": [
+      "source": "/(.*)",
+      "destination": "/api/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
         {
-          "src": "/(.*)",
-          "dest": "/api/index.php"
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods", 
+          "value": "GET,POST,PUT,DELETE,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
         }
       ]
     }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
+}
