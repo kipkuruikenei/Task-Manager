@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskMaster Pro | Advanced Task Management</title>
+    <title>TaskMaster Pro | Vercel Deployment</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -67,6 +67,9 @@
                 </div>
                 <div id="taskList" class="task-list">
                     <!-- Tasks will be loaded here dynamically -->
+                    <div class="no-tasks">
+                        <p>No tasks found. Add a new task to get started!</p>
+                    </div>
                 </div>
             </section>
         </div>
