@@ -2,6 +2,7 @@ class TaskManager {
     constructor() {
         this.tasks = [];
         this.currentFilter = 'all';
+        this.baseURL = window.location.origin;
         this.init();
     }
 
@@ -12,10 +13,13 @@ class TaskManager {
 
     bindEvents() {
         // Form submission
-        document.getElementById('taskForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.addTask();
-        });
+        const taskForm = document.getElementById('taskForm');
+        if (taskForm) {
+            taskForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.addTask();
+            });
+        }
 
         // Filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -28,17 +32,22 @@ class TaskManager {
     async loadTasks() {
         this.showLoading(true);
         try {
-            const response = await fetch('tasks.php');
+            const response = await fetch('./tasks.php');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
             
             if (data.success) {
                 this.tasks = data.tasks;
                 this.updateStatistics(data);
                 this.renderTasks();
+            } else {
+                this.showError('Failed to load tasks: ' + (data.error || 'Unknown error'));
             }
         } catch (error) {
             console.error('Error loading tasks:', error);
-            this.showError('Failed to load tasks');
+            this.showError('Failed to load tasks. Please check the console for details.');
         } finally {
             this.showLoading(false);
         }
@@ -53,8 +62,15 @@ class TaskManager {
             dueDate: document.getElementById('taskDueDate').value
         };
 
+        // Basic validation
+        if (!formData.title.trim()) {
+            this.showError('Task title is required');
+            return;
+        }
+
+        this.showLoading(true);
         try {
-            const response = await fetch('tasks.php', {
+            const response = await fetch('./tasks.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,20 +82,22 @@ class TaskManager {
             
             if (data.success) {
                 form.reset();
-                this.loadTasks(); // Reload all tasks
+                await this.loadTasks(); // Reload all tasks
                 this.showSuccess('Task added successfully!');
             } else {
                 this.showError(data.error || 'Failed to add task');
             }
         } catch (error) {
             console.error('Error adding task:', error);
-            this.showError('Failed to add task');
+            this.showError('Failed to add task. Please check your connection.');
+        } finally {
+            this.showLoading(false);
         }
     }
 
     async toggleTaskCompletion(taskId) {
         try {
-            const response = await fetch('tasks.php', {
+            const response = await fetch('./tasks.php', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -90,7 +108,7 @@ class TaskManager {
             const data = await response.json();
             
             if (data.success) {
-                this.loadTasks(); // Reload all tasks
+                await this.loadTasks(); // Reload all tasks
             } else {
                 this.showError('Failed to update task');
             }
@@ -106,7 +124,7 @@ class TaskManager {
         }
 
         try {
-            const response = await fetch('tasks.php', {
+            const response = await fetch('./tasks.php', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +135,7 @@ class TaskManager {
             const data = await response.json();
             
             if (data.success) {
-                this.loadTasks(); // Reload all tasks
+                await this.loadTasks(); // Reload all tasks
                 this.showSuccess('Task deleted successfully!');
             } else {
                 this.showError('Failed to delete task');
@@ -142,6 +160,8 @@ class TaskManager {
     renderTasks() {
         const taskList = document.getElementById('taskList');
         const filteredTasks = this.getFilteredTasks();
+
+        if (!taskList) return;
 
         if (filteredTasks.length === 0) {
             taskList.innerHTML = `
@@ -187,13 +207,20 @@ class TaskManager {
     }
 
     updateStatistics(data) {
-        document.getElementById('totalTasks').textContent = data.total;
-        document.getElementById('completedTasks').textContent = data.completed;
-        document.getElementById('pendingTasks').textContent = data.pending;
+        const totalTasks = document.getElementById('totalTasks');
+        const completedTasks = document.getElementById('completedTasks');
+        const pendingTasks = document.getElementById('pendingTasks');
+
+        if (totalTasks) totalTasks.textContent = data.total || 0;
+        if (completedTasks) completedTasks.textContent = data.completed || 0;
+        if (pendingTasks) pendingTasks.textContent = data.pending || 0;
     }
 
     showLoading(show) {
-        document.getElementById('loadingSpinner').style.display = show ? 'block' : 'none';
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        if (loadingSpinner) {
+            loadingSpinner.style.display = show ? 'block' : 'none';
+        }
     }
 
     showError(message) {
@@ -205,6 +232,10 @@ class TaskManager {
     }
 
     showNotification(message, type) {
+        // Remove existing notifications
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => notification.remove());
+
         // Create notification element
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
@@ -246,4 +277,7 @@ class TaskManager {
 }
 
 // Initialize the task manager when the page loads
-const taskManager = new TaskManager();
+let taskManager;
+document.addEventListener('DOMContentLoaded', () => {
+    taskManager = new TaskManager();
+});
