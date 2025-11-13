@@ -6,25 +6,17 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    exit(0);
+    http_response_code(200);
+    exit();
 }
 
-// Use secure path for data storage
-$dataFile = __DIR__ . '/../private/tasks.json';
-
-// Ensure private directory exists
-$privateDir = __DIR__ . '/../private';
-if (!file_exists($privateDir)) {
-    mkdir($privateDir, 0755, true);
-}
+// Use current directory for file storage
+$dataFile = __DIR__ . '/tasks.json';
 
 // Initialize tasks file if it doesn't exist
 if (!file_exists($dataFile)) {
     file_put_contents($dataFile, json_encode([]));
 }
-
-// Get request method
-$method = $_SERVER['REQUEST_METHOD'];
 
 // Helper function to read tasks
 function readTasks() {
@@ -42,11 +34,14 @@ function saveTasks($tasks) {
     return file_put_contents($dataFile, json_encode($tasks, JSON_PRETTY_PRINT));
 }
 
+// Get request method
+$method = $_SERVER['REQUEST_METHOD'];
+
 // Get input data
+$input = [];
 if ($method == 'POST' || $method == 'PUT' || $method == 'DELETE') {
-    $input = json_decode(file_get_contents('php://input'), true);
-} else {
-    $input = [];
+    $inputData = file_get_contents('php://input');
+    $input = json_decode($inputData, true) ?: [];
 }
 
 // Handle different HTTP methods
